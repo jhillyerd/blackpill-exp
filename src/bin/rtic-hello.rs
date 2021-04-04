@@ -4,7 +4,7 @@
 use blackpill_exp as _; // global logger + panicking-behavior + memory layout
 use rtic;
 
-#[rtic::app(device = stm32f4xx_hal::stm32)]
+#[rtic::app(device = stm32f4xx_hal::pac)]
 mod app {
     #[init]
     fn init(_ctx: init::Context) -> (init::LateResources, init::Monotonics) {

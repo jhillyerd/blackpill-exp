@@ -4,7 +4,7 @@
 use blackpill_exp as _; // global logger + panicking-behavior + memory layout
 use rtic;
 
-#[rtic::app(device = stm32f4xx_hal::stm32, dispatchers = [SPI1])]
+#[rtic::app(device = stm32f4xx_hal::pac, dispatchers = [SPI1])]
 mod app {
     use dwt_systick_monotonic::DwtSystick;
     use rtic::time::duration::*;
