@@ -6,15 +6,11 @@ use rtic;
 
 #[rtic::app(device = stm32f4xx_hal::pac, dispatchers = [SPI1])]
 mod app {
-    use dwt_systick_monotonic::DwtSystick;
     use infrared::{remotecontrol::RemoteControl, remotes::nec::Apple2009};
     use stm32f4xx_hal::{gpio::*, prelude::*, rcc, stm32 as pac, timer};
 
     const SYSCLK_HZ: u32 = 100_000_000;
     const IR_SAMPLE_HZ: u32 = 20_000;
-
-    #[monotonic(binds = SysTick, default = true)]
-    type SysMono = DwtSystick<{ crate::app::SYSCLK_HZ }>;
 
     type StatusLED = gpioc::PC13<Output<PushPull>>;
     type IRTimer = timer::Timer<pac::TIM4>;
@@ -30,8 +26,6 @@ mod app {
 
     #[init]
     fn init(ctx: init::Context) -> (init::LateResources, init::Monotonics) {
-        let mut dcb = ctx.core.DCB;
-
         let dp: pac::Peripherals = ctx.device;
         let rcc = dp.RCC.constrain();
         let gpiob = dp.GPIOB.split();
@@ -39,9 +33,6 @@ mod app {
 
         // Clock setup.
         let clocks: rcc::Clocks = rcc.cfgr.use_hse(25.mhz()).sysclk(SYSCLK_HZ.hz()).freeze();
-        let dwt = ctx.core.DWT;
-        let systick = ctx.core.SYST;
-        let mono = DwtSystick::new(&mut dcb, dwt, systick, clocks.sysclk().0);
 
         // LED setup.
         let led: StatusLED = gpioc.pc13.into_push_pull_output();
@@ -62,7 +53,7 @@ mod app {
                 ir_recv,
                 ir_timer,
             },
-            init::Monotonics(mono),
+            init::Monotonics(),
         )
     }
 
